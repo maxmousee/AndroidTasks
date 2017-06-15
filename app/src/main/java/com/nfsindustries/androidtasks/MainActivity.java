@@ -23,8 +23,13 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -48,6 +53,8 @@ public class MainActivity extends Activity
 
     ProgressDialog mProgress;
     CommonUtils commonUtils;
+    ArrayAdapter<String> adapter;
+    ListView listView;
 
     /**
      * Create the main activity.
@@ -57,19 +64,12 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_task_list);
+        listView = (ListView) findViewById(R.id.taskListView);
         commonUtils = new CommonUtils(this, this);
-        LinearLayout activityLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        activityLayout.setLayoutParams(lp);
-        activityLayout.setOrientation(LinearLayout.VERTICAL);
-        activityLayout.setPadding(16, 16, 16, 16);
 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage(getString(R.string.loading));
-
-        setContentView(activityLayout);
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -262,7 +262,7 @@ public class MainActivity extends Activity
          */
         private List<String> getDataFromApi() throws IOException {
             // List all tasks
-            final List<String> taskListInfo = new ArrayList<String>();
+            final List<String> taskListInfo = new ArrayList<>();
             final TaskLists result = mService.tasklists().list()
                     .execute();
             final List<TaskList> tasklists = result.getItems();
@@ -290,10 +290,11 @@ public class MainActivity extends Activity
                         Toast.LENGTH_SHORT);
                 toast.show();
             } else {
-                output.add(0, "Data retrieved using the Google Tasks API:");
-                final Toast toast = Toast.makeText(MainActivity.this, TextUtils.join("\n", output),
-                        Toast.LENGTH_SHORT);
-                toast.show();
+                // specify an adapter
+                adapter = new ArrayAdapter<>(MainActivity.this,
+                        android.R.layout.simple_list_item_1, output);
+                listView.setAdapter(adapter);
+                Log.d("DATA_RCV", output.toString());
             }
         }
 
@@ -310,7 +311,7 @@ public class MainActivity extends Activity
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             REQUEST_AUTHORIZATION);
                 } else {
-                    String errorMsg = getString(R.string.error_ocurred) + "\n"
+                    final String errorMsg = getString(R.string.error_ocurred) + "\n"
                             + mLastError.getMessage() + "\n" + mLastError.toString();
                     final Toast toast = Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_LONG);
                     toast.show();
