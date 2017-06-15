@@ -1,9 +1,5 @@
 package com.nfsindustries.androidtasks;
 
-/**
- * Created by maxmo on 14/6/2017.
- */
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -50,21 +46,20 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static com.nfsindustries.androidtasks.utils.Constants.BUTTON_TEXT;
+import static com.nfsindustries.androidtasks.utils.Constants.PREF_ACCOUNT_NAME;
+import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_ACCOUNT_PICKER;
+import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_AUTHORIZATION;
+import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY_SERVICES;
+import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_PERMISSION_GET_ACCOUNTS;
+import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
+
 public class MainActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
     private Button mCallApiButton;
     ProgressDialog mProgress;
-
-    static final int REQUEST_ACCOUNT_PICKER = 1000;
-    static final int REQUEST_AUTHORIZATION = 1001;
-    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-
-    private static final String BUTTON_TEXT = "Call Google Tasks API";
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { TasksScopes.TASKS_READONLY };
 
     /**
      * Create the main activity.
@@ -401,8 +396,7 @@ public class MainActivity extends Activity
                                     .getConnectionStatusCode());
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity.REQUEST_AUTHORIZATION);
+                            ((UserRecoverableAuthIOException) mLastError).getIntent(), REQUEST_AUTHORIZATION);
                 } else {
                     mOutputText.setText("The following error occurred:\n"
                             + mLastError.getMessage());
