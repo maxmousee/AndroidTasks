@@ -12,9 +12,8 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 
-import com.google.api.services.tasks.TasksScopes;
-
 import com.google.api.services.tasks.model.*;
+import com.nfsindustries.androidtasks.utils.CommonUtils;
 
 import android.Manifest;
 import android.accounts.AccountManager;
@@ -45,21 +44,21 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static com.nfsindustries.androidtasks.utils.Constants.BUTTON_TEXT;
+import static com.nfsindustries.androidtasks.utils.Constants.PREF_ACCOUNT_NAME;
+import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_ACCOUNT_PICKER;
+import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_AUTHORIZATION;
+import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY_SERVICES;
+import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_PERMISSION_GET_ACCOUNTS;
+import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
+
 public class MainActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
     private Button mCallApiButton;
     ProgressDialog mProgress;
-
-    static final int REQUEST_ACCOUNT_PICKER = 1000;
-    static final int REQUEST_AUTHORIZATION = 1001;
-    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
-
-    private static final String BUTTON_TEXT = "Call Google Tasks API";
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { TasksScopes.TASKS_READONLY };
+    CommonUtils commonUtils;
 
     /**
      * Create the main activity.
@@ -68,6 +67,8 @@ public class MainActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        commonUtils = new CommonUtils(this, this);
         LinearLayout activityLayout = new LinearLayout(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -113,8 +114,6 @@ public class MainActivity extends Activity
                 .setBackOff(new ExponentialBackOff());
     }
 
-
-
     /**
      * Attempt to call the API, after verifying that all the preconditions are
      * satisfied. The preconditions are: Google Play Services installed, an
@@ -123,11 +122,11 @@ public class MainActivity extends Activity
      * appropriate.
      */
     private void getResultsFromApi() {
-        if (! isGooglePlayServicesAvailable()) {
-            acquireGooglePlayServices();
+        if (!commonUtils.isGooglePlayServicesAvailable()) {
+            commonUtils.acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
-        } else if (! isDeviceOnline()) {
+        } else if (!commonUtils.isDeviceOnline()) {
             mOutputText.setText("No network connection available.");
         } else {
             new MakeRequestTask(mCredential).execute();
@@ -259,61 +258,6 @@ public class MainActivity extends Activity
     }
 
     /**
-     * Checks whether the device currently has a network connection.
-     * @return true if the device has a network connection, false otherwise.
-     */
-    private boolean isDeviceOnline() {
-        ConnectivityManager connMgr =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
-    }
-
-    /**
-     * Check that Google Play services APK is installed and up to date.
-     * @return true if Google Play Services is available and up to
-     *     date on this device; false otherwise.
-     */
-    private boolean isGooglePlayServicesAvailable() {
-        GoogleApiAvailability apiAvailability =
-                GoogleApiAvailability.getInstance();
-        final int connectionStatusCode =
-                apiAvailability.isGooglePlayServicesAvailable(this);
-        return connectionStatusCode == ConnectionResult.SUCCESS;
-    }
-
-    /**
-     * Attempt to resolve a missing, out-of-date, invalid or disabled Google
-     * Play Services installation via a user dialog, if possible.
-     */
-    private void acquireGooglePlayServices() {
-        GoogleApiAvailability apiAvailability =
-                GoogleApiAvailability.getInstance();
-        final int connectionStatusCode =
-                apiAvailability.isGooglePlayServicesAvailable(this);
-        if (apiAvailability.isUserResolvableError(connectionStatusCode)) {
-            showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
-        }
-    }
-
-
-    /**
-     * Display an error dialog showing that Google Play Services is missing
-     * or out of date.
-     * @param connectionStatusCode code describing the presence (or lack of)
-     *     Google Play Services on this device.
-     */
-    void showGooglePlayServicesAvailabilityErrorDialog(
-            final int connectionStatusCode) {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        Dialog dialog = apiAvailability.getErrorDialog(
-                MainActivity.this,
-                connectionStatusCode,
-                REQUEST_GOOGLE_PLAY_SERVICES);
-        dialog.show();
-    }
-
-    /**
      * An asynchronous task that handles the Google Tasks API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
      */
@@ -322,11 +266,11 @@ public class MainActivity extends Activity
         private Exception mLastError = null;
 
         MakeRequestTask(GoogleAccountCredential credential) {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            final HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.tasks.Tasks.Builder(
                     transport, jsonFactory, credential)
-                    .setApplicationName("Google Tasks API Android Quickstart")
+                    .setApplicationName(getString(R.string.app_name))
                     .build();
         }
 
@@ -353,11 +297,11 @@ public class MainActivity extends Activity
          */
         private List<String> getDataFromApi() throws IOException {
             // List up to 10 task lists.
-            List<String> taskListInfo = new ArrayList<String>();
-            TaskLists result = mService.tasklists().list()
+            final List<String> taskListInfo = new ArrayList<String>();
+            final TaskLists result = mService.tasklists().list()
                     .setMaxResults(Long.valueOf(10))
                     .execute();
-            List<TaskList> tasklists = result.getItems();
+            final List<TaskList> tasklists = result.getItems();
             if (tasklists != null) {
                 for (TaskList tasklist : tasklists) {
                     taskListInfo.add(String.format("%s (%s)\n",
@@ -376,7 +320,7 @@ public class MainActivity extends Activity
         }
 
         @Override
-        protected void onPostExecute(List<String> output) {
+        protected void onPostExecute(final List<String> output) {
             mProgress.hide();
             if (output == null || output.size() == 0) {
                 mOutputText.setText("No results returned.");
@@ -391,13 +335,13 @@ public class MainActivity extends Activity
             mProgress.hide();
             if (mLastError != null) {
                 if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
+                    commonUtils.showGooglePlayServicesAvailabilityErrorDialog(
                             ((GooglePlayServicesAvailabilityIOException) mLastError)
                                     .getConnectionStatusCode());
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     startActivityForResult(
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity.REQUEST_AUTHORIZATION);
+                            REQUEST_AUTHORIZATION);
                 } else {
                     mOutputText.setText("The following error occurred:\n"
                             + mLastError.getMessage() + "\n" + mLastError.toString());
