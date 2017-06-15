@@ -1,4 +1,4 @@
-package com.nfsindustries.androidtasks.activities;
+package com.nfsindustries.androidtasks;
 
 /**
  * Created by maxmo on 14/6/2017.
