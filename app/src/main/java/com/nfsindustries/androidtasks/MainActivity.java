@@ -400,7 +400,8 @@ public class MainActivity extends Activity
                             MainActivity.REQUEST_AUTHORIZATION);
                 } else {
                     mOutputText.setText("The following error occurred:\n"
-                            + mLastError.getMessage());
+                            + mLastError.getMessage() + "\n" + mLastError.toString());
+                    mLastError.printStackTrace();
                 }
             } else {
                 mOutputText.setText("Request cancelled.");
