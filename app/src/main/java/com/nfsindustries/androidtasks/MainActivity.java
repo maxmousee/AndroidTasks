@@ -1,7 +1,5 @@
 package com.nfsindustries.androidtasks;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -18,13 +16,10 @@ import com.nfsindustries.androidtasks.utils.CommonUtils;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -44,7 +39,6 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static com.nfsindustries.androidtasks.utils.Constants.BUTTON_TEXT;
 import static com.nfsindustries.androidtasks.utils.Constants.PREF_ACCOUNT_NAME;
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_ACCOUNT_PICKER;
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_AUTHORIZATION;
@@ -56,7 +50,7 @@ public class MainActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
-    private Button mCallApiButton;
+    private Button loginButton;
     ProgressDialog mProgress;
     CommonUtils commonUtils;
 
@@ -81,30 +75,26 @@ public class MainActivity extends Activity
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        mCallApiButton = new Button(this);
-        mCallApiButton.setText(BUTTON_TEXT);
-        mCallApiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCallApiButton.setEnabled(false);
-                mOutputText.setText("");
-                getResultsFromApi();
-                mCallApiButton.setEnabled(true);
-            }
+        loginButton = new Button(this);
+        loginButton.setText(getString(R.string.login));
+        loginButton.setOnClickListener((View v) -> {
+            loginButton.setEnabled(false);
+            mOutputText.setText("");
+            getResultsFromApi();
+            loginButton.setEnabled(true);
         });
-        activityLayout.addView(mCallApiButton);
+        activityLayout.addView(loginButton);
 
         mOutputText = new TextView(this);
         mOutputText.setLayoutParams(tlp);
         mOutputText.setPadding(16, 16, 16, 16);
         mOutputText.setVerticalScrollBarEnabled(true);
         mOutputText.setMovementMethod(new ScrollingMovementMethod());
-        mOutputText.setText(
-                "Click the \'" + BUTTON_TEXT +"\' button to test the API.");
+        mOutputText.setText(getString(R.string.please_login));
         activityLayout.addView(mOutputText);
 
         mProgress = new ProgressDialog(this);
-        mProgress.setMessage("Calling Google Tasks API ...");
+        mProgress.setMessage(getString(R.string.loading));
 
         setContentView(activityLayout);
 
@@ -127,7 +117,7 @@ public class MainActivity extends Activity
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (!commonUtils.isDeviceOnline()) {
-            mOutputText.setText("No network connection available.");
+            mOutputText.setText(getString(R.string.no_connection));
         } else {
             new MakeRequestTask(mCredential).execute();
         }
@@ -162,7 +152,7 @@ public class MainActivity extends Activity
             // Request the GET_ACCOUNTS permission via a user dialog
             EasyPermissions.requestPermissions(
                     this,
-                    "This app needs to access your Google account (via Contacts).",
+                    getString(R.string.contacts_permission_req),
                     REQUEST_PERMISSION_GET_ACCOUNTS,
                     Manifest.permission.GET_ACCOUNTS);
         }
@@ -185,9 +175,7 @@ public class MainActivity extends Activity
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    mOutputText.setText(
-                            "This app requires Google Play Services. Please install " +
-                                    "Google Play Services on your device and relaunch this app.");
+                    mOutputText.setText(getString(R.string.install_play_services));
                 } else {
                     getResultsFromApi();
                 }
@@ -343,7 +331,7 @@ public class MainActivity extends Activity
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             REQUEST_AUTHORIZATION);
                 } else {
-                    mOutputText.setText("The following error occurred:\n"
+                    mOutputText.setText(getString(R.string.error_ocurred) + "\n"
                             + mLastError.getMessage() + "\n" + mLastError.toString());
                     mLastError.printStackTrace();
                 }

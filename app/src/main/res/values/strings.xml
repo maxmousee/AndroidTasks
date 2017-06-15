@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">GTasks Sample</string>
+    <string name="loading">Loading...</string>
+    <string name="login">Login</string>
+    <string name="please_login">Please, Login.</string>
+    <string name="no_connection">No network connection available.</string>
+    <string name="contacts_permission_req">This app needs to access your Google account (via Contacts).</string>
+    <string name="install_play_services">This app requires Google Play Services. Please install Google Play Services on your device and relaunch this app.</string>
+    <string name="error_ocurred">The following error occurred: </string>
 </resources>
