@@ -10,6 +10,8 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 
+import com.google.api.services.tasks.*;
+import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.*;
 import com.nfsindustries.androidtasks.utils.CommonUtils;
 
@@ -246,7 +248,7 @@ public class MainActivity extends Activity
         @Override
         protected List<String> doInBackground(Void... params) {
             try {
-                return getDataFromApi();
+                return getTaskListsDataFromApi();
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
@@ -255,23 +257,23 @@ public class MainActivity extends Activity
         }
 
         /**
-         * Fetch a list of tasks.
+         * Fetch a list of tasklists.
          * @return List of Strings describing task lists, or an empty list if
          *         there are no task lists found.
          * @throws IOException
          */
-        private List<String> getDataFromApi() throws IOException {
+        private List<String> getTaskListsDataFromApi() throws IOException {
             // List all tasks
             final List<String> taskListInfo = new ArrayList<>();
             final TaskLists result = mService.tasklists().list()
                     .execute();
             final List<TaskList> tasklists = result.getItems();
-            if (tasklists != null) {
-                for (TaskList tasklist : tasklists) {
-                    taskListInfo.add(String.format("%s (%s)\n",
-                            tasklist.getTitle(),
-                            tasklist.getId()));
-                }
+            final TaskList defaultList = tasklists.get(0);
+            final com.google.api.services.tasks.model.Tasks defaultTaskListItems = mService.tasks().list(defaultList.getId())
+                    .execute();
+            if (defaultTaskListItems != null) {
+                for(Task task: defaultTaskListItems.getItems())
+                taskListInfo.add(task.getTitle());
             }
             return taskListInfo;
         }
