@@ -17,7 +17,6 @@ public final class Constants {
     public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     public static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
-    public static final String BUTTON_TEXT = "Call Google Tasks API";
     public static final String PREF_ACCOUNT_NAME = "accountName";
     public static final String[] SCOPES = { TasksScopes.TASKS_READONLY };
 }

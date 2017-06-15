@@ -12,6 +12,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 
+import com.google.api.services.tasks.TasksScopes;
 
 import com.google.api.services.tasks.model.*;
 
@@ -44,19 +45,21 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static com.nfsindustries.androidtasks.utils.Constants.BUTTON_TEXT;
-import static com.nfsindustries.androidtasks.utils.Constants.PREF_ACCOUNT_NAME;
-import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_ACCOUNT_PICKER;
-import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_AUTHORIZATION;
-import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY_SERVICES;
-import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_PERMISSION_GET_ACCOUNTS;
-import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
-
 public class MainActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
+    private Button mCallApiButton;
     ProgressDialog mProgress;
+
+    static final int REQUEST_ACCOUNT_PICKER = 1000;
+    static final int REQUEST_AUTHORIZATION = 1001;
+    static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
+    static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
+
+    private static final String BUTTON_TEXT = "Call Google Tasks API";
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String[] SCOPES = { TasksScopes.TASKS_READONLY };
 
     /**
      * Create the main activity.
@@ -77,6 +80,19 @@ public class MainActivity extends Activity
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
+        mCallApiButton = new Button(this);
+        mCallApiButton.setText(BUTTON_TEXT);
+        mCallApiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallApiButton.setEnabled(false);
+                mOutputText.setText("");
+                getResultsFromApi();
+                mCallApiButton.setEnabled(true);
+            }
+        });
+        activityLayout.addView(mCallApiButton);
+
         mOutputText = new TextView(this);
         mOutputText.setLayoutParams(tlp);
         mOutputText.setPadding(16, 16, 16, 16);
@@ -90,19 +106,11 @@ public class MainActivity extends Activity
         mProgress.setMessage("Calling Google Tasks API ...");
 
         setContentView(activityLayout);
-    }
 
-    /**
-     * Method called when the app resumes after the user left the app
-     */
-    @Override
-    protected void onResume() {
-        super.onResume();
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
-        getResultsFromApi();
     }
 
 
@@ -388,7 +396,8 @@ public class MainActivity extends Activity
                                     .getConnectionStatusCode());
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
                     startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(), REQUEST_AUTHORIZATION);
+                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
+                            MainActivity.REQUEST_AUTHORIZATION);
                 } else {
                     mOutputText.setText("The following error occurred:\n"
                             + mLastError.getMessage());
