@@ -24,12 +24,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,8 +45,7 @@ import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
 public class MainActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
-    private TextView mOutputText;
-    private Button loginButton;
+
     ProgressDialog mProgress;
     CommonUtils commonUtils;
 
@@ -71,28 +66,6 @@ public class MainActivity extends Activity
         activityLayout.setOrientation(LinearLayout.VERTICAL);
         activityLayout.setPadding(16, 16, 16, 16);
 
-        ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        loginButton = new Button(this);
-        loginButton.setText(getString(R.string.login));
-        loginButton.setOnClickListener((View v) -> {
-            loginButton.setEnabled(false);
-            mOutputText.setText("");
-            getResultsFromApi();
-            loginButton.setEnabled(true);
-        });
-        activityLayout.addView(loginButton);
-
-        mOutputText = new TextView(this);
-        mOutputText.setLayoutParams(tlp);
-        mOutputText.setPadding(16, 16, 16, 16);
-        mOutputText.setVerticalScrollBarEnabled(true);
-        mOutputText.setMovementMethod(new ScrollingMovementMethod());
-        mOutputText.setText(getString(R.string.please_login));
-        activityLayout.addView(mOutputText);
-
         mProgress = new ProgressDialog(this);
         mProgress.setMessage(getString(R.string.loading));
 
@@ -102,6 +75,8 @@ public class MainActivity extends Activity
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
+
+        getResultsFromApi();
     }
 
     /**
@@ -117,7 +92,8 @@ public class MainActivity extends Activity
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (!commonUtils.isDeviceOnline()) {
-            mOutputText.setText(getString(R.string.no_connection));
+            final Toast toast = Toast.makeText(this, getString(R.string.no_connection), Toast.LENGTH_LONG);
+            toast.show();
         } else {
             new MakeRequestTask(mCredential).execute();
         }
@@ -175,7 +151,8 @@ public class MainActivity extends Activity
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    mOutputText.setText(getString(R.string.install_play_services));
+                    final Toast toast = Toast.makeText(this, getString(R.string.install_play_services), Toast.LENGTH_LONG);
+                    toast.show();
                 } else {
                     getResultsFromApi();
                 }
@@ -303,7 +280,6 @@ public class MainActivity extends Activity
 
         @Override
         protected void onPreExecute() {
-            mOutputText.setText("");
             mProgress.show();
         }
 
@@ -311,10 +287,14 @@ public class MainActivity extends Activity
         protected void onPostExecute(final List<String> output) {
             mProgress.hide();
             if (output == null || output.size() == 0) {
-                mOutputText.setText("No results returned.");
+                final Toast toast = Toast.makeText(MainActivity.this, getString(R.string.no_results),
+                        Toast.LENGTH_SHORT);
+                toast.show();
             } else {
                 output.add(0, "Data retrieved using the Google Tasks API:");
-                mOutputText.setText(TextUtils.join("\n", output));
+                final Toast toast = Toast.makeText(MainActivity.this, TextUtils.join("\n", output),
+                        Toast.LENGTH_SHORT);
+                toast.show();
             }
         }
 
@@ -331,12 +311,16 @@ public class MainActivity extends Activity
                             ((UserRecoverableAuthIOException) mLastError).getIntent(),
                             REQUEST_AUTHORIZATION);
                 } else {
-                    mOutputText.setText(getString(R.string.error_ocurred) + "\n"
-                            + mLastError.getMessage() + "\n" + mLastError.toString());
+                    String errorMsg = getString(R.string.error_ocurred) + "\n"
+                            + mLastError.getMessage() + "\n" + mLastError.toString();
+                    final Toast toast = Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_LONG);
+                    toast.show();
                     mLastError.printStackTrace();
                 }
             } else {
-                mOutputText.setText("Request cancelled.");
+                final Toast toast = Toast.makeText(MainActivity.this, getString(R.string.request_cancelled),
+                        Toast.LENGTH_SHORT);
+                toast.show();
             }
         }
     }
