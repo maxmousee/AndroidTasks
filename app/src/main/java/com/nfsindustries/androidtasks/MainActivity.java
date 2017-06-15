@@ -255,16 +255,15 @@ public class MainActivity extends Activity
         }
 
         /**
-         * Fetch a list of the first 10 task lists.
+         * Fetch a list of tasks.
          * @return List of Strings describing task lists, or an empty list if
          *         there are no task lists found.
          * @throws IOException
          */
         private List<String> getDataFromApi() throws IOException {
-            // List up to 10 task lists.
+            // List all tasks
             final List<String> taskListInfo = new ArrayList<String>();
             final TaskLists result = mService.tasklists().list()
-                    .setMaxResults(Long.valueOf(10))
                     .execute();
             final List<TaskList> tasklists = result.getItems();
             if (tasklists != null) {
