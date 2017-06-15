@@ -10,8 +10,6 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 
-import com.google.api.services.tasks.*;
-import com.google.api.services.tasks.Tasks;
 import com.google.api.services.tasks.model.*;
 import com.nfsindustries.androidtasks.utils.CommonUtils;
 
@@ -25,12 +23,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -42,7 +36,6 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static com.nfsindustries.androidtasks.utils.Constants.PREF_ACCOUNT_NAME;
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_ACCOUNT_PICKER;
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_AUTHORIZATION;
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY_SERVICES;
@@ -116,7 +109,7 @@ public class MainActivity extends Activity
         if (EasyPermissions.hasPermissions(
                 this, Manifest.permission.GET_ACCOUNTS)) {
             String accountName = getPreferences(Context.MODE_PRIVATE)
-                    .getString(PREF_ACCOUNT_NAME, null);
+                    .getString(getString(R.string.accNamePreference), null);
             if (accountName != null) {
                 mCredential.setSelectedAccountName(accountName);
                 getResultsFromApi();
@@ -168,7 +161,7 @@ public class MainActivity extends Activity
                         SharedPreferences settings =
                                 getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.putString(getString(R.string.accNamePreference), accountName);
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
                         getResultsFromApi();
