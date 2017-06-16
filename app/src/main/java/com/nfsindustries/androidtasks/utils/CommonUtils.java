@@ -11,7 +11,8 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY_SERVICES;
 
 /**
- * Created by maxmo on 15/6/2017.
+ * Common app utils, to check if there is network available, if Google Play Services is Available,
+ * error dialog, etc
  */
 
 public class CommonUtils {
