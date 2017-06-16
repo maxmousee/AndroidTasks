@@ -6,6 +6,7 @@
     <string name="request_cancelled">"Request cancelled"</string>
     <string name="no_results">"No results returned."</string>
     <string name="accNamePreference">accountName</string>
+    <string name="default_list">Default List</string>
     <string name="no_connection">No network connection available.</string>
     <string name="contacts_permission_req">This app needs to access your Google account (via Contacts).</string>
     <string name="install_play_services">This app requires Google Play Services. Please install Google Play Services on your device and relaunch this app.</string>
