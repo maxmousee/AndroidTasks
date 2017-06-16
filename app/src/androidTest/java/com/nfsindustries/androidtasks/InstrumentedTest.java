@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 
 /**
  * Instrumentation test, which will execute on an Android device.
+ * Used for automated UI testing
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
