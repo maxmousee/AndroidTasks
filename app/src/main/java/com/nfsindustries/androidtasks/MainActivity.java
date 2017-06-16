@@ -235,6 +235,10 @@ public class MainActivity extends Activity
         private com.google.api.services.tasks.Tasks mService = null;
         private Exception mLastError = null;
 
+        /**
+         * Start a request to get the list of tasks from a given tasklistfrom Googles servers
+         * @param credential current Google Account Credential
+         */
         MakeRequestTask(GoogleAccountCredential credential) {
             final HttpTransport transport = AndroidHttp.newCompatibleTransport();
             final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -324,6 +328,7 @@ public class MainActivity extends Activity
 
         /**
          * Callback when the async task is cancelled
+         * Display error messages on Toast Notifications
          */
         @Override
         protected void onCancelled() {

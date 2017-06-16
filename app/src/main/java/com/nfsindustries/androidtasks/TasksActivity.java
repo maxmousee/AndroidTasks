@@ -45,6 +45,11 @@ import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
 import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_ID;
 import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_TITLE;
 
+/**
+ * TaskList Class, sets all views and make requests do get a list of tasks
+ * Future improvement: remove private classes from here and create a separate class for AsyncTask
+ * Future improvement: offline cache support
+ */
 public class TasksActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
 
@@ -57,7 +62,7 @@ public class TasksActivity extends Activity
     String taskListId;
 
     /**
-     * Create the main activity.
+     * Create the activity, sets views and start requests
      * @param savedInstanceState previously saved instance data.
      */
     @Override
@@ -235,6 +240,10 @@ public class TasksActivity extends Activity
         private com.google.api.services.tasks.Tasks mService = null;
         private Exception mLastError = null;
 
+        /**
+         * Start a request to get the list of tasks from a given tasklistfrom Googles servers
+         * @param credential current Google Account Credential
+         */
         MakeRequestTask(GoogleAccountCredential credential) {
             final HttpTransport transport = AndroidHttp.newCompatibleTransport();
             final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -251,7 +260,7 @@ public class TasksActivity extends Activity
         @Override
         protected List<String> doInBackground(Void... params) {
             try {
-                return getTaskListsDataFromApi();
+                return getTasksDataFromApi();
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
@@ -265,7 +274,7 @@ public class TasksActivity extends Activity
          *         there are no tasks found.
          * @throws IOException
          */
-        private List<String> getTaskListsDataFromApi() throws IOException {
+        private List<String> getTasksDataFromApi() throws IOException {
             // List all tasks
             final List<String> taskListInfo = new ArrayList<>();
             final com.google.api.services.tasks.model.Tasks defaultTaskListItems = mService.tasks().list(taskListId)
@@ -277,12 +286,18 @@ public class TasksActivity extends Activity
             return taskListInfo;
         }
 
-
+        /**
+         * Start animating the progress bar when the request task start
+         */
         @Override
         protected void onPreExecute() {
             mProgress.show();
         }
 
+        /**
+         * Callback when the request is finished, then parse and display results
+         * @param output list of task lists titles
+         */
         @Override
         protected void onPostExecute(final List<String> output) {
             mProgress.hide();
@@ -301,6 +316,10 @@ public class TasksActivity extends Activity
             }
         }
 
+        /**
+         * Callback when the async task is cancelled
+         * Display error messages on Toast Notifications
+         */
         @Override
         protected void onCancelled() {
             mProgress.hide();
