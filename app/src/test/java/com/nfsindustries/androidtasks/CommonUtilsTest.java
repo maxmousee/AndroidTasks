@@ -16,12 +16,18 @@ import static org.mockito.Mockito.when;
 
 /**
  * CommonUtils unit test, which will execute on the development machine (host).
+ * Missing some tests due to Mockito NOT being able to mock Static Classes and Powermock
+ * not being compatible with Android Studio AFAIK
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CommonUtilsTest {
 
+    /**
+     * Tests object initialization
+     * @throws Exception
+     */
     @Test
     public void notNullCommonUtilsTest() throws Exception {
         Context context = mock(Context.class);
@@ -30,6 +36,11 @@ public class CommonUtilsTest {
         assertNotNull(commonUtils);
     }
 
+    /**
+     * Unit test for device offline [because we cant mock static methods, a positive test is not
+     * possible
+     * @throws Exception
+     */
     @Test
     public void deviceOfflineTest() throws Exception {
         Context context = mock(Context.class);
