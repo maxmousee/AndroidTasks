@@ -26,6 +26,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -42,6 +43,7 @@ import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_PERMISSION_GET_ACCOUNTS;
 import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
 import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_ID;
+import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_TITLE;
 
 public class TasksActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
@@ -51,6 +53,7 @@ public class TasksActivity extends Activity
     CommonUtils commonUtils;
     ArrayAdapter<String> adapter;
     ListView listView;
+    TextView taskListTitleTextView;
     String taskListId;
 
     /**
@@ -61,10 +64,13 @@ public class TasksActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         taskListId = getIntent().getStringExtra(TASK_LIST_ID);
+        final String taskListTile = getIntent().getStringExtra(TASK_LIST_TITLE);
         Log.d("Current TaskList ID", taskListId);
 
         setContentView(R.layout.activity_tasks);
         listView = (ListView) findViewById(R.id.tasksListView);
+        taskListTitleTextView = (TextView) findViewById(R.id.taskListTitleTextView);
+        taskListTitleTextView.setText(taskListTile);
         commonUtils = new CommonUtils(this, this);
 
         mProgress = new ProgressDialog(this);

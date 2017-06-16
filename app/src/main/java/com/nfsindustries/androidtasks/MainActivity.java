@@ -44,6 +44,7 @@ import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_PERMISSION_GET_ACCOUNTS;
 import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
 import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_ID;
+import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_TITLE;
 
 public class MainActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
@@ -296,9 +297,11 @@ public class MainActivity extends Activity
                     public void onItemClick(AdapterView<?> parent, final View view,
                                             int position, long id) {
                         //show details
-                        final String taskListId = tasklists.get(position).getId();
+                        final TaskList taskList = tasklists.get(position);
+                        final String taskListId = taskList.getId();
                         Intent intent = new Intent(getBaseContext(), TasksActivity.class);
                         intent.putExtra(TASK_LIST_ID, taskListId);
+                        intent.putExtra(TASK_LIST_TITLE, taskList.getTitle());
                         startActivity(intent);
                     }
 
