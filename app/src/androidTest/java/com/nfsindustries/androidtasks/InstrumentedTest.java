@@ -21,6 +21,11 @@ public class InstrumentedTest {
     @Rule
     public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule(MainActivity.class);
 
+    /**
+     * Test if app can use Application context, if it is not, something very bad happened to
+     * the build
+     * @throws Exception
+     */
     @Test
     public void useAppContext() throws Exception {
         // Context of the app under test.
