@@ -46,6 +46,11 @@ import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
 import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_ID;
 import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_TITLE;
 
+/**
+ * Main Activity Class, sets all views and make requests do get a list of TaskLists
+ * Future improvement: remove private classes from here and create a separate class for AsyncTask
+ * Future improvement: offline cache support
+ */
 public class MainActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
@@ -258,7 +263,7 @@ public class MainActivity extends Activity
          * Fetch a list of tasklist.
          * @return List of Strings describing task lists, or an empty list if
          *         there are no task lists found.
-         * @throws IOException
+         * @throws IOException when something goes wrong with the request
          */
         private List<String> getTaskListsDataFromApi() throws IOException {
             // List all task lists
@@ -274,11 +279,18 @@ public class MainActivity extends Activity
         }
 
 
+        /**
+         * Start animating the progress bar when the request task start
+         */
         @Override
         protected void onPreExecute() {
             mProgress.show();
         }
 
+        /**
+         * Callback when the request is finished, then parse and display results
+         * @param output list of task lists titles
+         */
         @Override
         protected void onPostExecute(final List<String> output) {
             mProgress.hide();
@@ -310,6 +322,9 @@ public class MainActivity extends Activity
             Log.d("DATA_RCV", output.toString());
         }
 
+        /**
+         * Callback when the async task is cancelled
+         */
         @Override
         protected void onCancelled() {
             mProgress.hide();
