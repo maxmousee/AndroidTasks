@@ -41,6 +41,7 @@ import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_AUTHORIZATI
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY_SERVICES;
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_PERMISSION_GET_ACCOUNTS;
 import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
+import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_ID;
 
 public class TasksActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
@@ -50,6 +51,7 @@ public class TasksActivity extends Activity
     CommonUtils commonUtils;
     ArrayAdapter<String> adapter;
     ListView listView;
+    String taskListId;
 
     /**
      * Create the main activity.
@@ -58,8 +60,9 @@ public class TasksActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        taskListId = getIntent().getStringExtra(TASK_LIST_ID);
 
-        setContentView(R.layout.activity_tasks_lists_list);
+        setContentView(R.layout.activity_tasks);
         listView = (ListView) findViewById(R.id.taskListsView);
         commonUtils = new CommonUtils(this, this);
 
@@ -250,19 +253,15 @@ public class TasksActivity extends Activity
         }
 
         /**
-         * Fetch a list of tasklists.
-         * @return List of Strings describing task lists, or an empty list if
-         *         there are no task lists found.
+         * Fetch a list of tasks of a given list.
+         * @return List of Strings describing tasks, or an empty list if
+         *         there are no tasks found.
          * @throws IOException
          */
         private List<String> getTaskListsDataFromApi() throws IOException {
             // List all tasks
             final List<String> taskListInfo = new ArrayList<>();
-            final TaskLists result = mService.tasklists().list()
-                    .execute();
-            final List<TaskList> tasklists = result.getItems();
-            final TaskList defaultList = tasklists.get(0);
-            final com.google.api.services.tasks.model.Tasks defaultTaskListItems = mService.tasks().list(defaultList.getId())
+            final com.google.api.services.tasks.model.Tasks defaultTaskListItems = mService.tasks().list(taskListId)
                     .execute();
             if (defaultTaskListItems != null) {
                 for(Task task: defaultTaskListItems.getItems())

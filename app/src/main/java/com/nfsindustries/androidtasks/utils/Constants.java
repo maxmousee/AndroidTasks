@@ -12,6 +12,7 @@ public final class Constants {
         // restrict instantiation
     }
 
+    public static final String TASK_LIST_ID = "taskListId";
     public static final int REQUEST_ACCOUNT_PICKER = 1000;
     public static final int REQUEST_AUTHORIZATION = 1001;
     public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;

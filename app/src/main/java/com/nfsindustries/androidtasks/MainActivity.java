@@ -250,13 +250,13 @@ public class MainActivity extends Activity
         }
 
         /**
-         * Fetch a list of tasklists.
+         * Fetch a list of tasklist.
          * @return List of Strings describing task lists, or an empty list if
          *         there are no task lists found.
          * @throws IOException
          */
         private List<String> getTaskListsDataFromApi() throws IOException {
-            // List all tasks
+            // List all task lists
             final List<String> taskListInfo = new ArrayList<>();
             final TaskLists result = mService.tasklists().list()
                     .execute();
