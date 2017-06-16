@@ -42,7 +42,7 @@ import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_PERMISSION_GET_ACCOUNTS;
 import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
 
-public class MainActivity extends Activity
+public class TasksActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
 
@@ -261,9 +261,12 @@ public class MainActivity extends Activity
             final TaskLists result = mService.tasklists().list()
                     .execute();
             final List<TaskList> tasklists = result.getItems();
-            if (tasklists != null) {
-                for(TaskList taskList: tasklists)
-                taskListInfo.add(taskList.getTitle());
+            final TaskList defaultList = tasklists.get(0);
+            final com.google.api.services.tasks.model.Tasks defaultTaskListItems = mService.tasks().list(defaultList.getId())
+                    .execute();
+            if (defaultTaskListItems != null) {
+                for(Task task: defaultTaskListItems.getItems())
+                    taskListInfo.add(task.getTitle());
             }
             return taskListInfo;
         }
@@ -278,12 +281,12 @@ public class MainActivity extends Activity
         protected void onPostExecute(final List<String> output) {
             mProgress.hide();
             if (output == null || output.size() == 0) {
-                final Toast toast = Toast.makeText(MainActivity.this, getString(R.string.no_results),
+                final Toast toast = Toast.makeText(TasksActivity.this, getString(R.string.no_results),
                         Toast.LENGTH_SHORT);
                 toast.show();
             } else {
                 // specify an adapter
-                adapter = new ArrayAdapter<>(MainActivity.this,
+                adapter = new ArrayAdapter<>(TasksActivity.this,
                         android.R.layout.simple_list_item_1, output);
                 listView.setAdapter(adapter);
                 Log.d("DATA_RCV", output.toString());
@@ -305,12 +308,12 @@ public class MainActivity extends Activity
                 } else {
                     final String errorMsg = getString(R.string.error_ocurred) + "\n"
                             + mLastError.getMessage() + "\n" + mLastError.toString();
-                    final Toast toast = Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_LONG);
+                    final Toast toast = Toast.makeText(TasksActivity.this, errorMsg, Toast.LENGTH_LONG);
                     toast.show();
                     mLastError.printStackTrace();
                 }
             } else {
-                final Toast toast = Toast.makeText(MainActivity.this, getString(R.string.request_cancelled),
+                final Toast toast = Toast.makeText(TasksActivity.this, getString(R.string.request_cancelled),
                         Toast.LENGTH_SHORT);
                 toast.show();
             }
