@@ -45,8 +45,8 @@ import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_ID;
 
 public class TasksActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
-    GoogleAccountCredential mCredential;
 
+    GoogleAccountCredential mCredential;
     ProgressDialog mProgress;
     CommonUtils commonUtils;
     ArrayAdapter<String> adapter;
@@ -61,9 +61,10 @@ public class TasksActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         taskListId = getIntent().getStringExtra(TASK_LIST_ID);
+        Log.d("Current TaskList ID", taskListId);
 
         setContentView(R.layout.activity_tasks);
-        listView = (ListView) findViewById(R.id.taskListsView);
+        listView = (ListView) findViewById(R.id.tasksListView);
         commonUtils = new CommonUtils(this, this);
 
         mProgress = new ProgressDialog(this);
@@ -285,9 +286,11 @@ public class TasksActivity extends Activity
                 toast.show();
             } else {
                 // specify an adapter
-                adapter = new ArrayAdapter<>(TasksActivity.this,
-                        android.R.layout.simple_list_item_1, output);
-                listView.setAdapter(adapter);
+                if (output != null) {
+                    adapter = new ArrayAdapter<>(TasksActivity.this,
+                            android.R.layout.simple_list_item_1, output);
+                    listView.setAdapter(adapter);
+                }
                 Log.d("DATA_RCV", output.toString());
             }
         }

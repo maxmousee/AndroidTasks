@@ -24,6 +24,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -41,6 +43,7 @@ import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_AUTHORIZATI
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_GOOGLE_PLAY_SERVICES;
 import static com.nfsindustries.androidtasks.utils.Constants.REQUEST_PERMISSION_GET_ACCOUNTS;
 import static com.nfsindustries.androidtasks.utils.Constants.SCOPES;
+import static com.nfsindustries.androidtasks.utils.Constants.TASK_LIST_ID;
 
 public class MainActivity extends Activity
         implements EasyPermissions.PermissionCallbacks {
@@ -50,6 +53,7 @@ public class MainActivity extends Activity
     CommonUtils commonUtils;
     ArrayAdapter<String> adapter;
     ListView listView;
+    List<TaskList> tasklists;
 
     /**
      * Create the main activity.
@@ -260,7 +264,7 @@ public class MainActivity extends Activity
             final List<String> taskListInfo = new ArrayList<>();
             final TaskLists result = mService.tasklists().list()
                     .execute();
-            final List<TaskList> tasklists = result.getItems();
+            tasklists = result.getItems();
             if (tasklists != null) {
                 for(TaskList taskList: tasklists)
                 taskListInfo.add(taskList.getTitle());
@@ -286,8 +290,21 @@ public class MainActivity extends Activity
                 adapter = new ArrayAdapter<>(MainActivity.this,
                         android.R.layout.simple_list_item_1, output);
                 listView.setAdapter(adapter);
-                Log.d("DATA_RCV", output.toString());
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, final View view,
+                                            int position, long id) {
+                        //show details
+                        final String taskListId = tasklists.get(position).getId();
+                        Intent intent = new Intent(getBaseContext(), TasksActivity.class);
+                        intent.putExtra(TASK_LIST_ID, taskListId);
+                        startActivity(intent);
+                    }
+
+                });
             }
+            Log.d("DATA_RCV", output.toString());
         }
 
         @Override
